@@ -5,6 +5,9 @@ import (
 	"log/slog"
 	pb "main/genproto/health_analytics"
 	"main/storage"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type MonitoringService struct {
@@ -21,17 +24,53 @@ func NewMonitoringService(logger *slog.Logger, repo storage.IStorage) *Monitorin
 }
 
 func (s *MonitoringService) GenerateHealthRecommendations(ctx context.Context, req *pb.GenerateHealthRecommendationsRequest) (*pb.GenerateHealthRecommendationsResponse, error) {
-	return nil, nil
+	s.logger.Info("GenerateHealthRecommendations called", "user_id", req.GetUserId())
+
+	resp, err := s.repo.Monitoring().GenerateHealthRecommendations(ctx, req)
+	if err != nil {
+		s.logger.Error("Failed to generate health recommendations", "error", err)
+		return nil, status.Errorf(codes.Internal, "Failed to generate health recommendations: %v", err)
+	}
+
+	s.logger.Info("Health recommendations generated successfully", "recommendations_count", len(resp.GetRecommendations()))
+	return resp, nil
 }
 
 func (s *MonitoringService) GetRealtimeHealthMonitoring(ctx context.Context, req *pb.GetRealtimeHealthMonitoringRequest) (*pb.GetRealtimeHealthMonitoringResponse, error) {
-	return nil, nil
+	s.logger.Info("GetRealtimeHealthMonitoring called", "user_id", req.GetUserId())
+
+	resp, err := s.repo.Monitoring().GetRealtimeHealthMonitoring(ctx, req)
+	if err != nil {
+		s.logger.Error("Failed to get realtime health monitoring data", "error", err)
+		return nil, status.Errorf(codes.Internal, "Failed to get realtime health monitoring data: %v", err)
+	}
+
+	s.logger.Info("Realtime health monitoring data retrieved successfully", "user_id", resp.GetUserId())
+	return resp, nil
 }
 
 func (s *MonitoringService) GetDailyHealthSummary(ctx context.Context, req *pb.GetDailyHealthSummaryRequest) (*pb.GetDailyHealthSummaryResponse, error) {
-	return nil, nil
+	s.logger.Info("GetDailyHealthSummary called", "user_id", req.GetUserId(), "date", req.GetDate())
+
+	resp, err := s.repo.Monitoring().GetDailyHealthSummary(ctx, req)
+	if err != nil {
+		s.logger.Error("Failed to get daily health summary", "error", err)
+		return nil, status.Errorf(codes.Internal, "Failed to get daily health summary: %v", err)
+	}
+
+	s.logger.Info("Daily health summary retrieved successfully", "user_id", resp.GetUserId(), "date", resp.GetDate())
+	return resp, nil
 }
 
 func (s *MonitoringService) GetWeeklyHealthSummary(ctx context.Context, req *pb.GetWeeklyHealthSummaryRequest) (*pb.GetWeeklyHealthSummaryResponse, error) {
-	return nil, nil
+	s.logger.Info("GetWeeklyHealthSummary called", "user_id", req.GetUserId(), "start_date", req.GetStartDate(), "end_date", req.GetEndDate())
+
+	resp, err := s.repo.Monitoring().GetWeeklyHealthSummary(ctx, req)
+	if err != nil {
+		s.logger.Error("Failed to get weekly health summary", "error", err)
+		return nil, status.Errorf(codes.Internal, "Failed to get weekly health summary: %v", err)
+	}
+
+	s.logger.Info("Weekly health summary retrieved successfully", "user_id", resp.GetUserId(), "start_date", resp.GetStartDate(), "end_date", resp.GetEndDate())
+	return resp, nil
 }

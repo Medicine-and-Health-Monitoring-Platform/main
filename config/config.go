@@ -36,6 +36,7 @@ func Load() *Config {
 
 	cfg.HTTP_PORT = cast.ToString(coalesce("HTTP_PORT", ":8080"))
 	cfg.AUTH_SERVICE_PORT = cast.ToString(coalesce("AUTH_SERVICE_PORT", ":50051"))
+	
 
 	cfg.DB_HOST = cast.ToString(coalesce("DB_HOST", "localhost"))
 	cfg.DB_PORT = cast.ToInt(coalesce("DB_PORT", 5432))
