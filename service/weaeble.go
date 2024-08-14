@@ -2,28 +2,26 @@ package service
 
 import (
 	"context"
-	"log/slog"
 	pb "main/genproto/health_analytics"
-	"main/storage"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-type WearableService struct {
-	pb.UnimplementedHealthAnalyticsServiceServer
-	logger *slog.Logger
-	repo   storage.IStorage
-}
+// type WearableService struct {
+// 	pb.UnimplementedHealthAnalyticsServiceServer
+// 	logger *slog.Logger
+// 	repo   storage.IStorage
+// }
 
-func NewWearableService(logger *slog.Logger, repo storage.IStorage) *WearableService {
-	return &WearableService{
-		logger: logger,
-		repo:   repo,
-	}
-}
+// func NewWearableService(logger *slog.Logger, repo storage.IStorage) *WearableService {
+// 	return &WearableService{
+// 		logger: logger,
+// 		repo:   repo,
+// 	}
+// }
 
-func (s *WearableService) AddWearableData(ctx context.Context, req *pb.AddWearableDataRequest) (*pb.AddWearableDataResponse, error) {
+func (s *HealthService) AddWearableData(ctx context.Context, req *pb.AddWearableDataRequest) (*pb.AddWearableDataResponse, error) {
 	s.logger.Info("AddWearableData called", "user_id", req.GetData().GetUserId())
 
 	resp, err := s.repo.WearableData().AddWearableData(ctx, req)
@@ -36,7 +34,7 @@ func (s *WearableService) AddWearableData(ctx context.Context, req *pb.AddWearab
 	return resp, nil
 }
 
-func (s *WearableService) GetWearableData(ctx context.Context, req *pb.GetWearableDataRequest) (*pb.GetWearableDataResponse, error) {
+func (s *HealthService) GetWearableData(ctx context.Context, req *pb.GetWearableDataRequest) (*pb.GetWearableDataResponse, error) {
 	s.logger.Info("GetWearableData called", "data_id", req.GetDataId())
 
 	resp, err := s.repo.WearableData().GetWearableData(ctx, req)
@@ -49,7 +47,7 @@ func (s *WearableService) GetWearableData(ctx context.Context, req *pb.GetWearab
 	return resp, nil
 }
 
-func (s *WearableService) UpdateWearableData(ctx context.Context, req *pb.UpdateWearableDataRequest) (*pb.UpdateWearableDataResponse, error) {
+func (s *HealthService) UpdateWearableData(ctx context.Context, req *pb.UpdateWearableDataRequest) (*pb.UpdateWearableDataResponse, error) {
 	s.logger.Info("UpdateWearableData called", "data_id", req.GetData().GetId())
 
 	resp, err := s.repo.WearableData().UpdateWearableData(ctx, req)
@@ -62,7 +60,7 @@ func (s *WearableService) UpdateWearableData(ctx context.Context, req *pb.Update
 	return resp, nil
 }
 
-func (s *WearableService) DeleteWearableData(ctx context.Context, req *pb.DeleteWearableDataRequest) (*pb.DeleteWearableDataResponse, error) {
+func (s *HealthService) DeleteWearableData(ctx context.Context, req *pb.DeleteWearableDataRequest) (*pb.DeleteWearableDataResponse, error) {
 	s.logger.Info("DeleteWearableData called", "data_id", req.GetDataId())
 
 	resp, err := s.repo.WearableData().DeleteWearableData(ctx, req)

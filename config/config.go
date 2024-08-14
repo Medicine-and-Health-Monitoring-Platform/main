@@ -10,7 +10,6 @@ import (
 
 type Config struct {
 	HTTP_PORT         string
-	AUTH_SERVICE_PORT string
 	MDB_NAME          string
 	MongoURI          string
 	DB_HOST           string
@@ -27,28 +26,23 @@ type Config struct {
 func Load() *Config {
 	err := godotenv.Load(".env")
 	if err != nil {
-		err := godotenv.Load("/home/jons/go/src/github.com/projects/e-commerce/api-gateway/.env")
+		err := godotenv.Load("/home/fedy/go/src/github/PersonalizedMedicineAndHealthMonitoringPlatform/main/.env")
 		if err != nil {
 			log.Fatalf("error loading .env: %v", err)
 		}
 	}
 	cfg := Config{}
 
-	cfg.HTTP_PORT = cast.ToString(coalesce("HTTP_PORT", ":8080"))
-	cfg.AUTH_SERVICE_PORT = cast.ToString(coalesce("AUTH_SERVICE_PORT", ":50051"))
+	cfg.HTTP_PORT = cast.ToString(coalesce("HTTP_PORT", "health:8083"))
+
+
 	
 
-	cfg.DB_HOST = cast.ToString(coalesce("DB_HOST", "localhost"))
-	cfg.DB_PORT = cast.ToInt(coalesce("DB_PORT", 5432))
-	cfg.DB_USER = cast.ToString(coalesce("DB_USER", "postgres"))
-	cfg.DB_PASSWORD = cast.ToString(coalesce("DB_PASSWORD", "password"))
-	cfg.DB_NAME = cast.ToString(coalesce("DB_NAME", "auth_i"))
-
-	cfg.MDB_NAME = cast.ToString(coalesce("MDB_NAME", "hello"))
-	cfg.MongoURI = cast.ToString(coalesce("MONGO_URI", "mongodb://localhost:27017"))
+	cfg.MDB_NAME = cast.ToString(coalesce("MDB_NAME", "medicine"))
+	cfg.MongoURI = cast.ToString(coalesce("MONGO_URI", "mongodb://mongo:27017"))
 
 	cfg.ACCESS_TOKEN = cast.ToString(coalesce("ACCESS_TOKEN", "access_key"))
-	cfg.KAFKA_HOST = cast.ToString(coalesce("KAFKA_HOST", "localhost"))
+	cfg.KAFKA_HOST = cast.ToString(coalesce("KAFKA_HOST", "kafka"))
 	cfg.KAFKA_PORT = cast.ToString(coalesce("KAFKA_PORT", "9092"))
 	cfg.KAFKA_TOPIC = cast.ToString(coalesce("KAFKA_TOPIC", "e-commerce:order"))
 

@@ -1,8 +1,13 @@
 package mongosh
 
 import (
-	"main/storage"
+	"encoding/json"
+	"fmt"
 	pb "main/genproto/health_analytics"
+	"main/storage"
+	"time"
+	"github.com/redis/go-redis/v9"
+
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -10,28 +15,53 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"time"
 )
 
 type MonitoringRepo struct {
 	Coll *mongo.Collection
+	Red  *redis.Client
 }
 
-func NewMonitoring(db *mongo.Database) storage.IMonitoringStorage {
+func NewMonitoring(db *mongo.Database, rdb *redis.Client) storage.IMonitoringStorage {
 	return &MonitoringRepo{
 		Coll: db.Collection("monitoring"),
+		Red:  rdb,
 	}
+}
+func (r *MonitoringRepo) CreateHealthMonitor(ctx context.Context, req *pb.CreateHealthMonitorReq) error {
+	value, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("failed to marshal CreateHealthMonitorReq: %w", err)
+	}
+	err = r.Red.Set(ctx, req.GetUserId(), value, 0).Err()
+	if err != nil {
+	 	return fmt.Errorf("failed to store data in Redis: %w", err)
+	}
+
+	return nil
+}
+
+func (r *MonitoringRepo) GetHealthMonitor(ctx context.Context, userID *pb.UserId) (*pb.GetHealthMonitorsRes, error) {
+	val, err := r.Red.Get(ctx,userID.GetUserId()).Result()
+	fmt.Println(userID.UserId)
+	if err != nil {
+		if err == redis.Nil {
+			return nil, fmt.Errorf("no data found for user_id: %s", userID.GetUserId())
+		}
+		return nil, fmt.Errorf("failed to get data from Redis: %w", err)
+	}
+
+	var res pb.GetHealthMonitorsRes
+	err = json.Unmarshal([]byte(val), &res)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal data: %w", err)
+	}
+
+	return &res, nil
 }
 
 func (r *MonitoringRepo) GenerateHealthRecommendations(ctx context.Context, req *pb.GenerateHealthRecommendationsRequest) (*pb.GenerateHealthRecommendationsResponse, error) {
-	// Bu funksiya foydalanuvchi ma'lumotlarini tahlil qilib, tavsiyalar yaratishi kerak
-	// Misol uchun:
-	
-	// 1. Foydalanuvchi ma'lumotlarini olish (medical records, lifestyle data, wearable data)
-	// 2. Ma'lumotlarni tahlil qilish
-	// 3. Tavsiyalar yaratish
 
-	// Bu yerda sodda misol keltirilgan:
 	recommendations := []*pb.HealthRecommendation{
 		{
 			Id:                 uuid.New().String(),
@@ -55,8 +85,7 @@ func (r *MonitoringRepo) GenerateHealthRecommendations(ctx context.Context, req 
 }
 
 func (r *MonitoringRepo) GetRealtimeHealthMonitoring(ctx context.Context, req *pb.GetRealtimeHealthMonitoringRequest) (*pb.GetRealtimeHealthMonitoringResponse, error) {
-	// Bu funksiya real vaqtda ma'lumotlarni olishi kerak
-	// Misol uchun, eng so'nggi wearable data'ni olish
+
 
 	filter := bson.M{"user_id": req.GetUserId()}
 	opts := options.FindOne().SetSort(bson.M{"recorded_timestamp": -1})
@@ -76,8 +105,7 @@ func (r *MonitoringRepo) GetRealtimeHealthMonitoring(ctx context.Context, req *p
 }
 
 func (r *MonitoringRepo) GetDailyHealthSummary(ctx context.Context, req *pb.GetDailyHealthSummaryRequest) (*pb.GetDailyHealthSummaryResponse, error) {
-	// Bu funksiya kunlik sog'liq ma'lumotlarini yig'ishi va tahlil qilishi kerak
-	
+
 	startOfDay, _ := time.Parse("2006-01-02", req.GetDate())
 	endOfDay := startOfDay.Add(24 * time.Hour)
 
@@ -96,7 +124,6 @@ func (r *MonitoringRepo) GetDailyHealthSummary(ctx context.Context, req *pb.GetD
 	defer cursor.Close(ctx)
 
 	summaryData := make(map[string][]byte)
-	// Bu yerda olingan ma'lumotlarni tahlil qilish va summaryData'ni to'ldirish kerak
 
 	return &pb.GetDailyHealthSummaryResponse{
 		UserId:      req.GetUserId(),
@@ -106,8 +133,7 @@ func (r *MonitoringRepo) GetDailyHealthSummary(ctx context.Context, req *pb.GetD
 }
 
 func (r *MonitoringRepo) GetWeeklyHealthSummary(ctx context.Context, req *pb.GetWeeklyHealthSummaryRequest) (*pb.GetWeeklyHealthSummaryResponse, error) {
-	// Bu funksiya haftalik sog'liq ma'lumotlarini yig'ishi va tahlil qilishi kerak
-	
+
 	startDate, _ := time.Parse("2006-01-02", req.GetStartDate())
 	endDate, _ := time.Parse("2006-01-02", req.GetEndDate())
 	endDate = endDate.Add(24 * time.Hour) // Include the end date
@@ -127,7 +153,6 @@ func (r *MonitoringRepo) GetWeeklyHealthSummary(ctx context.Context, req *pb.Get
 	defer cursor.Close(ctx)
 
 	summaryData := make(map[string][]byte)
-	// Bu yerda olingan ma'lumotlarni tahlil qilish va summaryData'ni to'ldirish kerak
 
 	return &pb.GetWeeklyHealthSummaryResponse{
 		UserId:      req.GetUserId(),

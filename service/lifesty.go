@@ -10,20 +10,20 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type LifestyleService struct {
+type HealthService struct {
 	pb.UnimplementedHealthAnalyticsServiceServer
 	logger *slog.Logger
 	repo   storage.IStorage
 }
 
-func NewLifestyleService(logger *slog.Logger, repo storage.IStorage) *LifestyleService {
-	return &LifestyleService{
+func NewHealthService(logger *slog.Logger, repo storage.IStorage) *HealthService {
+	return &HealthService{
 		logger: logger,
 		repo:   repo,
 	}
 }
 
-func (s *LifestyleService) AddLifestyleData(ctx context.Context, req *pb.AddLifestyleDataRequest) (*pb.AddLifestyleDataResponse, error) {
+func (s *HealthService) AddLifestyleData(ctx context.Context, req *pb.AddLifestyleDataRequest) (*pb.AddLifestyleDataResponse, error) {
 	s.logger.Info("AddLifestyleData called", "user_id", req.GetData().GetUserId())
 
 	resp, err := s.repo.LifestyleData().AddLifestyleData(ctx, req)
@@ -36,7 +36,7 @@ func (s *LifestyleService) AddLifestyleData(ctx context.Context, req *pb.AddLife
 	return resp, nil
 }
 
-func (s *LifestyleService) GetLifestyleData(ctx context.Context, req *pb.GetLifestyleDataRequest) (*pb.GetLifestyleDataResponse, error) {
+func (s *HealthService) GetLifestyleData(ctx context.Context, req *pb.GetLifestyleDataRequest) (*pb.GetLifestyleDataResponse, error) {
 	s.logger.Info("GetLifestyleData called", "data_id", req.GetDataId())
 
 	resp, err := s.repo.LifestyleData().GetLifestyleData(ctx, req)
@@ -49,7 +49,7 @@ func (s *LifestyleService) GetLifestyleData(ctx context.Context, req *pb.GetLife
 	return resp, nil
 }
 
-func (s *LifestyleService) UpdateLifestyleData(ctx context.Context, req *pb.UpdateLifestyleDataRequest) (*pb.UpdateLifestyleDataResponse, error) {
+func (s *HealthService) UpdateLifestyleData(ctx context.Context, req *pb.UpdateLifestyleDataRequest) (*pb.UpdateLifestyleDataResponse, error) {
 	s.logger.Info("UpdateLifestyleData called", "data_id", req.GetData().GetId())
 
 	resp, err := s.repo.LifestyleData().UpdateLifestyleData(ctx, req)
@@ -62,7 +62,7 @@ func (s *LifestyleService) UpdateLifestyleData(ctx context.Context, req *pb.Upda
 	return resp, nil
 }
 
-func (s *LifestyleService) DeleteLifestyleData(ctx context.Context, req *pb.DeleteLifestyleDataRequest) (*pb.DeleteLifestyleDataResponse, error) {
+func (s *HealthService) DeleteLifestyleData(ctx context.Context, req *pb.DeleteLifestyleDataRequest) (*pb.DeleteLifestyleDataResponse, error) {
 	s.logger.Info("DeleteLifestyleData called", "data_id", req.GetDataId())
 
 	resp, err := s.repo.LifestyleData().DeleteLifestyleData(ctx, req)

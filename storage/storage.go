@@ -39,6 +39,9 @@ type IMonitoringStorage interface{
 	GetRealtimeHealthMonitoring(context.Context, *pb.GetRealtimeHealthMonitoringRequest)(*pb.GetRealtimeHealthMonitoringResponse, error)
 	GetDailyHealthSummary(context.Context, *pb.GetDailyHealthSummaryRequest)(*pb.GetDailyHealthSummaryResponse, error)
 	GetWeeklyHealthSummary(context.Context, *pb.GetWeeklyHealthSummaryRequest)(*pb.GetWeeklyHealthSummaryResponse, error)
+	CreateHealthMonitor(context.Context, *pb.CreateHealthMonitorReq)(error)
+	GetHealthMonitor(context.Context, *pb.UserId) (*pb.GetHealthMonitorsRes, error)
+
 }
 
 

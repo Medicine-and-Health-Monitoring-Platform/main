@@ -25,26 +25,21 @@ func NewMedecalRecord(db *mongo.Database) storage.IMedicalRecordStorage {
 }
 
 func (r *MedicalRepo) AddMedicalRecord(ctx context.Context, req *pb.AddMedicalRecordRequest) (*pb.AddMedicalRecordResponse, error) {
-	// Generate a new UUID for the record
 	recordID := uuid.New().String()
 
-	// Create a new MedicalRecord with the generated ID
 	record := req.GetRecord()
 	record.Id = recordID
 
-	// Convert the protobuf message to a BSON document
 	doc, err := bson.Marshal(record)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Failed to marshal record: %v", err)
 	}
 
-	// Insert the document into the collection
 	_, err = r.Coll.InsertOne(ctx, doc)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Failed to insert record: %v", err)
 	}
 
-	// Return the response with the generated record ID
 	return &pb.AddMedicalRecordResponse{
 		RecordId: recordID,
 	}, nil
@@ -105,17 +100,14 @@ func (r *MedicalRepo) DeleteMedicalRecord(ctx context.Context, req *pb.DeleteMed
 func (r *MedicalRepo) ListMedicalRecord(ctx context.Context, req *pb.ListMedicalRecordsRequest) (*pb.ListMedicalRecordsResponse, error) {
 	filter := bson.M{"user_id": req.GetUserId()}
 
-	// Calculate skip and limit for pagination
 	skip := int64((req.GetPage() - 1) * req.GetPageSize())
 	limit := int64(req.GetPageSize())
 
-	// Get total count
 	totalCount, err := r.Coll.CountDocuments(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 
-	// Find documents with pagination
 	cursor, err := r.Coll.Find(ctx, filter, options.Find().SetSkip(skip).SetLimit(limit))
 	if err != nil {
 		return nil, err

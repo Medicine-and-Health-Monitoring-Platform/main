@@ -1,0 +1,6 @@
+time=2024-08-13T15:43:24.416+05:00 level=INFO msg="AddLifestyleData called" user_id=string
+time=2024-08-13T15:43:24.424+05:00 level=INFO msg="Lifestyle data added successfully" data_id=485d9cc9-7d9e-4bd2-8cb9-c9635fa60935
+time=2024-08-13T15:43:52.550+05:00 level=INFO msg="AddMedicalRecord called" user_id=string
+time=2024-08-13T15:43:52.561+05:00 level=INFO msg="Medical record added successfully" record_id=052d4511-5008-483c-8310-cf475795ecf6
+time=2024-08-13T15:44:09.747+05:00 level=INFO msg="AddWearableData called" user_id=string
+time=2024-08-13T15:44:09.757+05:00 level=INFO msg="Wearable data added successfully" data_id=153c8763-909e-449e-8b2a-9238b5cb87b0

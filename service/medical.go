@@ -2,28 +2,26 @@ package service
 
 import (
 	"context"
-	"log/slog"
 	pb "main/genproto/health_analytics"
-	"main/storage"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-type MedicalService struct {
-	pb.UnimplementedHealthAnalyticsServiceServer
-	logger *slog.Logger
-	repo   storage.IStorage
-}
+// type MedicalService struct {
+// 	pb.UnimplementedHealthAnalyticsServiceServer
+// 	logger *slog.Logger
+// 	repo   storage.IStorage
+// }
 
-func NewMedicalService(logger *slog.Logger, repo storage.IStorage) *MedicalService {
-	return &MedicalService{
-		logger: logger,
-		repo:   repo,
-	}
-}
+// func NewMedicalService(logger *slog.Logger, repo storage.IStorage) *MedicalService {
+// 	return &MedicalService{
+// 		logger: logger,
+// 		repo:   repo,
+// 	}
+// }
 
-func (s *MedicalService) AddMedicalRecord(ctx context.Context, req *pb.AddMedicalRecordRequest) (*pb.AddMedicalRecordResponse, error) {
+func (s *HealthService) AddMedicalRecord(ctx context.Context, req *pb.AddMedicalRecordRequest) (*pb.AddMedicalRecordResponse, error) {
 	s.logger.Info("AddMedicalRecord called", "user_id", req.GetRecord().GetUserId())
 
 	resp, err := s.repo.MedicalRecords().AddMedicalRecord(ctx, req)
@@ -36,7 +34,7 @@ func (s *MedicalService) AddMedicalRecord(ctx context.Context, req *pb.AddMedica
 	return resp, nil
 }
 
-func (s *MedicalService) GetMedicalRecord(ctx context.Context, req *pb.GetMedicalRecordRequest) (*pb.GetMedicalRecordResponse, error) {
+func (s *HealthService) GetMedicalRecord(ctx context.Context, req *pb.GetMedicalRecordRequest) (*pb.GetMedicalRecordResponse, error) {
 	s.logger.Info("GetMedicalRecord called", "record_id", req.GetRecordId())
 
 	resp, err := s.repo.MedicalRecords().GetMedicalRecord(ctx, req)
@@ -49,7 +47,7 @@ func (s *MedicalService) GetMedicalRecord(ctx context.Context, req *pb.GetMedica
 	return resp, nil
 }
 
-func (s *MedicalService) UpdateMedicalRecord(ctx context.Context, req *pb.UpdateMedicalRecordRequest) (*pb.UpdateMedicalRecordResponse, error) {
+func (s *HealthService) UpdateMedicalRecord(ctx context.Context, req *pb.UpdateMedicalRecordRequest) (*pb.UpdateMedicalRecordResponse, error) {
 	s.logger.Info("UpdateMedicalRecord called", "record_id", req.GetRecord().GetId())
 
 	resp, err := s.repo.MedicalRecords().UpdateMedicalRecord(ctx, req)
@@ -62,7 +60,7 @@ func (s *MedicalService) UpdateMedicalRecord(ctx context.Context, req *pb.Update
 	return resp, nil
 }
 
-func (s *MedicalService) DeleteMedicalRecord(ctx context.Context, req *pb.DeleteMedicalRecordRequest) (*pb.DeleteMedicalRecordResponse, error) {
+func (s *HealthService) DeleteMedicalRecord(ctx context.Context, req *pb.DeleteMedicalRecordRequest) (*pb.DeleteMedicalRecordResponse, error) {
 	s.logger.Info("DeleteMedicalRecord called", "record_id", req.GetRecordId())
 
 	resp, err := s.repo.MedicalRecords().DeleteMedicalRecord(ctx, req)
@@ -75,7 +73,7 @@ func (s *MedicalService) DeleteMedicalRecord(ctx context.Context, req *pb.Delete
 	return resp, nil
 }
 
-func (s *MedicalService) ListMedicalRecord(ctx context.Context, req *pb.ListMedicalRecordsRequest) (*pb.ListMedicalRecordsResponse, error) {
+func (s *HealthService) ListMedicalRecord(ctx context.Context, req *pb.ListMedicalRecordsRequest) (*pb.ListMedicalRecordsResponse, error) {
 	s.logger.Info("ListMedicalRecord called", "user_id", req.GetUserId())
 
 	resp, err := s.repo.MedicalRecords().ListMedicalRecord(ctx, req)
