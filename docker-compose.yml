@@ -5,7 +5,7 @@ services:
     image: redis:latest
     container_name: redis
     ports:
-      - "6379:6379"
+      - "6371:6379"
     environment:
       REDIS_PASSWORD: "root"
     networks:
@@ -16,7 +16,7 @@ services:
     image: mongo:latest
     container_name: mongo
     ports:
-      - "27017:27017"
+      - "27018:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example 

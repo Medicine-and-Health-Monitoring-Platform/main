@@ -39,6 +39,7 @@ type HealthAnalyticsServiceClient interface {
 	GetRealtimeHealthMonitoring(ctx context.Context, in *GetRealtimeHealthMonitoringRequest, opts ...grpc.CallOption) (*GetRealtimeHealthMonitoringResponse, error)
 	GetDailyHealthSummary(ctx context.Context, in *GetDailyHealthSummaryRequest, opts ...grpc.CallOption) (*GetDailyHealthSummaryResponse, error)
 	GetWeeklyHealthSummary(ctx context.Context, in *GetWeeklyHealthSummaryRequest, opts ...grpc.CallOption) (*GetWeeklyHealthSummaryResponse, error)
+	GetHealthMonitor(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*GetHealthMonitorsRes, error)
 }
 
 type healthAnalyticsServiceClient struct {
@@ -202,6 +203,15 @@ func (c *healthAnalyticsServiceClient) GetWeeklyHealthSummary(ctx context.Contex
 	return out, nil
 }
 
+func (c *healthAnalyticsServiceClient) GetHealthMonitor(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*GetHealthMonitorsRes, error) {
+	out := new(GetHealthMonitorsRes)
+	err := c.cc.Invoke(ctx, "/health_analytics.HealthAnalyticsService/GetHealthMonitor", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // HealthAnalyticsServiceServer is the server API for HealthAnalyticsService service.
 // All implementations must embed UnimplementedHealthAnalyticsServiceServer
 // for forward compatibility
@@ -223,6 +233,7 @@ type HealthAnalyticsServiceServer interface {
 	GetRealtimeHealthMonitoring(context.Context, *GetRealtimeHealthMonitoringRequest) (*GetRealtimeHealthMonitoringResponse, error)
 	GetDailyHealthSummary(context.Context, *GetDailyHealthSummaryRequest) (*GetDailyHealthSummaryResponse, error)
 	GetWeeklyHealthSummary(context.Context, *GetWeeklyHealthSummaryRequest) (*GetWeeklyHealthSummaryResponse, error)
+	GetHealthMonitor(context.Context, *UserId) (*GetHealthMonitorsRes, error)
 	mustEmbedUnimplementedHealthAnalyticsServiceServer()
 }
 
@@ -280,6 +291,9 @@ func (UnimplementedHealthAnalyticsServiceServer) GetDailyHealthSummary(context.C
 }
 func (UnimplementedHealthAnalyticsServiceServer) GetWeeklyHealthSummary(context.Context, *GetWeeklyHealthSummaryRequest) (*GetWeeklyHealthSummaryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWeeklyHealthSummary not implemented")
+}
+func (UnimplementedHealthAnalyticsServiceServer) GetHealthMonitor(context.Context, *UserId) (*GetHealthMonitorsRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHealthMonitor not implemented")
 }
 func (UnimplementedHealthAnalyticsServiceServer) mustEmbedUnimplementedHealthAnalyticsServiceServer() {
 }
@@ -601,6 +615,24 @@ func _HealthAnalyticsService_GetWeeklyHealthSummary_Handler(srv interface{}, ctx
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HealthAnalyticsService_GetHealthMonitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HealthAnalyticsServiceServer).GetHealthMonitor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/health_analytics.HealthAnalyticsService/GetHealthMonitor",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HealthAnalyticsServiceServer).GetHealthMonitor(ctx, req.(*UserId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // HealthAnalyticsService_ServiceDesc is the grpc.ServiceDesc for HealthAnalyticsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -676,91 +708,9 @@ var HealthAnalyticsService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "GetWeeklyHealthSummary",
 			Handler:    _HealthAnalyticsService_GetWeeklyHealthSummary_Handler,
 		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "health_analytics.proto",
-}
-
-// HealthMonitoringClient is the client API for HealthMonitoring service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type HealthMonitoringClient interface {
-	GetHealthMonitor(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*GetHealthMonitorsRes, error)
-}
-
-type healthMonitoringClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewHealthMonitoringClient(cc grpc.ClientConnInterface) HealthMonitoringClient {
-	return &healthMonitoringClient{cc}
-}
-
-func (c *healthMonitoringClient) GetHealthMonitor(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*GetHealthMonitorsRes, error) {
-	out := new(GetHealthMonitorsRes)
-	err := c.cc.Invoke(ctx, "/health_analytics.HealthMonitoring/GetHealthMonitor", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// HealthMonitoringServer is the server API for HealthMonitoring service.
-// All implementations must embed UnimplementedHealthMonitoringServer
-// for forward compatibility
-type HealthMonitoringServer interface {
-	GetHealthMonitor(context.Context, *UserId) (*GetHealthMonitorsRes, error)
-	mustEmbedUnimplementedHealthMonitoringServer()
-}
-
-// UnimplementedHealthMonitoringServer must be embedded to have forward compatible implementations.
-type UnimplementedHealthMonitoringServer struct {
-}
-
-func (UnimplementedHealthMonitoringServer) GetHealthMonitor(context.Context, *UserId) (*GetHealthMonitorsRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetHealthMonitor not implemented")
-}
-func (UnimplementedHealthMonitoringServer) mustEmbedUnimplementedHealthMonitoringServer() {}
-
-// UnsafeHealthMonitoringServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to HealthMonitoringServer will
-// result in compilation errors.
-type UnsafeHealthMonitoringServer interface {
-	mustEmbedUnimplementedHealthMonitoringServer()
-}
-
-func RegisterHealthMonitoringServer(s grpc.ServiceRegistrar, srv HealthMonitoringServer) {
-	s.RegisterService(&HealthMonitoring_ServiceDesc, srv)
-}
-
-func _HealthMonitoring_GetHealthMonitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserId)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(HealthMonitoringServer).GetHealthMonitor(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/health_analytics.HealthMonitoring/GetHealthMonitor",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HealthMonitoringServer).GetHealthMonitor(ctx, req.(*UserId))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// HealthMonitoring_ServiceDesc is the grpc.ServiceDesc for HealthMonitoring service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var HealthMonitoring_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "health_analytics.HealthMonitoring",
-	HandlerType: (*HealthMonitoringServer)(nil),
-	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetHealthMonitor",
-			Handler:    _HealthMonitoring_GetHealthMonitor_Handler,
+			Handler:    _HealthAnalyticsService_GetHealthMonitor_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

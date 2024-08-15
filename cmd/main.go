@@ -30,23 +30,24 @@ func main() {
 	conf := config.Load()
 	fmt.Println("Starting server ...")
 
-	lis, err := net.Listen("tcp", conf.HTTP_PORT)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-
-	defer lis.Close()
 	logger := logger.NewLogger()
-
+	
 	md := service.NewHealthService(logger, Mdb)
 	server := grpc.NewServer()
 	pb.RegisterHealthAnalyticsServiceServer(server, md)
-
+	
 	reader, err := consumer.NewKafkaConsumInit([]string{"kafka:9092"}, "create", "group")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer reader.Close()
+	
+	lis, err := net.Listen("tcp", conf.HTTP_PORT)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	fmt.Println(conf.HTTP_PORT)
+	defer lis.Close()
 
 	go func() {
 		reader.ComsumeMessages(ComsumeMessage)
